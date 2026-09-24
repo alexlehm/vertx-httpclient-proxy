@@ -11,5 +11,5 @@ this should show value=xyzxyz123 as response
 
 (this still does not work in all cases, but that is due to using CompletableFuture incorrectly I guess)
 
-when putting the bodyHandler directly into the function of clientResponse onSuccess() leads to Request has already been read (the version is in branch does-not-work
+when putting the bodyHandler directly into the function of clientResponse onSuccess() leads to Request has already been read (the version is in branch does-not-work)
 
