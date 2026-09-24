@@ -1,0 +1,15 @@
+mostly working proxy example is working like this:
+
+mvn clean package
+java -jar target\httpclient-1.0.0-SNAPSHOT-fat.jar
+
+in a 2nd window
+
+curl -i --data "value=abc123" http://localhost:8888/
+
+this should show value=xyzxyz123 as response
+
+(this still does not work in all cases, but that is due to using CompletableFuture incorrectly I guess)
+
+when putting the bodyHandler directly into the function of clientResponse onSuccess() leads to Request has already been read (the version is in branch does-not-work
+
