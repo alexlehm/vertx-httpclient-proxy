@@ -1,19 +1,16 @@
 package cx.lehmann.httpclient;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
+import io.vertx.core.VerticleBase;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.RequestOptions;
 import io.vertx.core.net.ClientSSLOptions;
-import io.vertx.core.VerticleBase;
-import io.vertx.core.buffer.Buffer;
-
-import java.util.concurrent.CompletableFuture;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MainVerticle extends VerticleBase {
 
@@ -24,23 +21,16 @@ public class MainVerticle extends VerticleBase {
         HttpClient client = vertx.createHttpClient();
 
         return vertx.createHttpServer().requestHandler(req -> {
-            CompletableFuture<Buffer> future = new CompletableFuture<>();
-            req.bodyHandler(body -> {
-                future.complete(body);
-            });
             final HttpServerResponse response = req.response();
             client.request(new RequestOptions().setMethod(HttpMethod.POST).setHost("www.lehmann.cx").setPort(443)
                     .setSsl(true).setSslOptions(new ClientSSLOptions().setTrustAll(true)).setURI("/echo/echo.php"))
                     .onSuccess(clientRequest -> {
-                        if (!future.isDone()) {
-                            logger.info("trying to join future");
-                            future.join();
-                        }
-                        Buffer buffer = future.getNow(null);
-                        logger.info("body: " + buffer);
-                        String replaced = buffer.toString().replace("abc", "xyzxyz");
-                        logger.info("replaced body: " + replaced);
-                        clientRequest.end(replaced);
+                        req.bodyHandler(buffer -> {
+                            logger.info("body: " + buffer);
+                            String replaced = buffer.toString().replace("abc", "xyzxyz");
+                            logger.info("replaced body: " + replaced);
+                            clientRequest.end(replaced);
+                        });
                         MultiMap headers = req.headers();
                         headers.remove("Content-Length");
                         clientRequest.headers().setAll(headers);
